@@ -1,9 +1,10 @@
 from dotenv import load_dotenv
 from langchain_core.prompts import PromptTemplate
 from langchain_openai import ChatOpenAI
+from langchain_ollama import  ChatOllama
+from langchain_google_genai import ChatGoogleGenerativeAI
 
 load_dotenv()
-
 
 def main():
     print("Hello from langchain-course!")
@@ -17,7 +18,7 @@ def main():
     """
     
     summary_template = """
-    Summarize the following {information} about Elon Musk in a concise manner:
+    Summarize the following {information} about Elon Musk in a concise manner in this manner:
     1. A short summary of who he is.
     2. His major achievements.
     """
@@ -27,7 +28,9 @@ def main():
         template=summary_template
     )
     
-    llm = ChatOpenAI(temperature=0, model="gpt-5")
+    # llm = ChatOpenAI(temperature=0, model="gpt-5")
+    # llm = ChatOllama(temperature=0, model="gemma3:270m")
+    llm = ChatGoogleGenerativeAI(temperature=1.0, model="gemini-2.5-flash")
     chain = summary_prompt_template | llm
     
     response = chain.invoke(input={"information": information})
