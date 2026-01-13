@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<profiles version="1.0">
+  <profile version="1.0" name="Project Default">
+    <option name="myName" value="Project Default" />
+    <inspection_tool class="PyUnresolvedReferences" enabled="true" level="ERROR" />
+    <inspection_tool class="PyUnresolvedReferencesFromImport" enabled="true" level="WARNING" />
+    <inspection_tool class="PyCompatibilityInspection" enabled="true" level="WARNING" />
+    <inspection_tool class="PyPep8Inspection" enabled="true" level="WARNING" />
+    <inspection_tool class="PyDocstringInspection" enabled="true" level="WEAK_WARNING" />
+    <inspection_tool class="PyTypeChecker" enabled="true" level="WARNING" />
+    <!-- Keep this profile minimal and machine-independent -->
+  </profile>
+</profiles>
+
