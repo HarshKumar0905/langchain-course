@@ -6,20 +6,37 @@ from langchain_classic import hub
 from langchain_classic.agents import AgentExecutor
 from langchain_classic.agents.react.agent import create_react_agent
 
+from langchain_core.output_parsers.pydantic import PydanticOutputParser
+from langchain_core.prompts import PromptTemplate
+from langchain_core.runnables import RunnableLambda
+
+from prompt import REACT_PROMPT_WITH_FORMAT_INSTRUCTIONS
+from schemas import AgentResponse
+
 load_dotenv()
 
 tools = [TavilySearch()]
-react_prompt = hub.pull("hwchase17/react")
-# Upgraded to Gemini 3 Flash for improved performance and reasoning
-llm = ChatGoogleGenerativeAI(model="gemini-2.5-flash")
-agent = create_react_agent(llm=llm, tools=tools, prompt=react_prompt)
-agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=True)
-chain = agent_executor
+# react_prompt = hub.pull("hwchase17/react")
+llm = ChatGoogleGenerativeAI(model="gemini-2.5-pro")
+output_parser = PydanticOutputParser(pydantic_object=AgentResponse)
+react_prompt_with_format_instructions = PromptTemplate(
+    template=REACT_PROMPT_WITH_FORMAT_INSTRUCTIONS,
+    input_variables=[ "tool_names", "input", "agent_scratchpad"]
+).partial(format_instructions=output_parser.get_format_instructions())
+
+agent = create_react_agent(
+    llm=llm, 
+    tools=tools, 
+    prompt=react_prompt_with_format_instructions)
+agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=True, handle_parsing_errors=True)
+extract_output = RunnableLambda(lambda x: x["output"])
+parse_output = RunnableLambda(lambda x: output_parser.parse(x))
+chain = agent_executor | extract_output | parse_output
 
 def main():
     result = chain.invoke(
         input={
-            "input": "Fetch me the latest 3 job openings for AI Engineer from linkedin in the NYC region."
+            "input": "Search 3 job openings for AI Engineer from linkedin in the NYC region."
         }
     )
     print(result)
